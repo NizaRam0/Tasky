@@ -40,7 +40,9 @@ class Task extends HiveObject {
 
   @HiveField(8)
   String tid;
-
+ 
+  @HiveField(9)
+  DateTime? createdAt;
 
 
   Task({
@@ -56,6 +58,7 @@ class Task extends HiveObject {
      this.isDeleted = false,
      this.deletedAt,
      this.tid ="",
+    this.createdAt,
 
   });
 }

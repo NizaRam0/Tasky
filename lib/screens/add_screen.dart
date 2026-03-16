@@ -47,6 +47,7 @@ void saveTask() {
               return;
                    }
                     final newTask = Task(
+                      
                       title: titleController.text,
                        description: descController.text,
                        dueDate: selectedDay!,
@@ -55,6 +56,7 @@ void saveTask() {
                        //the ! makes the variable non-nullable,
                        // which is necessary because the Task constructor requires non-null values for these fields.
                        tid: TidGen.generateTid(),
+                       createdAt: DateTime.now(),
                        );
                        taskDB.add(newTask);
                        Navigator.pop(context);
@@ -134,6 +136,8 @@ void saveTask() {
 
       TextField(
         controller: descController,
+                maxLines: 4,
+
         style: const TextStyle(color: Colors.white),
         decoration: const InputDecoration(
           hintText: 'Enter a descreption for your task',
