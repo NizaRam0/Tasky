@@ -5,6 +5,9 @@ import '../models/task.dart';
 import '../utils/TidGen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../notifiers/task_Notifier.dart';
+import '../widgets/priority_dropdown.dart';
+import '../widgets/category_dropdown.dart';
+import '../widgets/due_date_selector.dart';
 
 class addTask extends ConsumerStatefulWidget {
   const addTask({super.key});
@@ -177,145 +180,26 @@ class _addTaskState extends ConsumerState<addTask> {
             const SizedBox(height: 20),
 
             /// DATE PICKER BUTTON
-            ElevatedButton(
-              onPressed: _pickDate,
-
-              style: ElevatedButton.styleFrom(
-                backgroundColor: selectedDay == null
-                    ? Colors.white54
-                    : Colors.redAccent,
-                minimumSize: const Size(double.infinity, 55),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    selectedDay == null
-                        ? "Set due date"
-                        : "Due: ${selectedDay!.day}/${selectedDay!.month}/${selectedDay!.year}",
-                    style: const TextStyle(color: Colors.black, fontSize: 20),
-                  ),
-
-                  const Icon(
-                    Icons.calendar_month,
-                    color: Colors.black,
-                    size: 30,
-                  ),
-                ],
-              ),
-            ),
+            DueDateSelector(selectedDay: selectedDay, onPressed: _pickDate),
 
             /////////////////////////////Priority///////////////////////////////////////////
             const SizedBox(height: 20),
-            DropdownButtonFormField<String>(
-              dropdownColor: const Color(0xFFFF5252),
-              // The dropdownColor property is used to set the background color of the dropdown menu when it is opened. In this case, it is set to a shade of red (0xFFFF5252).
-              initialValue: priority,
-              hint: const Text(
-                "Select priority",
-                style: TextStyle(color: Colors.white54),
-              ),
-
-              items: ["Low", "Medium", "High"].map((String value) {
-                return DropdownMenuItem(
-                  value: value,
-                  child: Text(value, style: TextStyle(color: Colors.white54)),
-                );
-              }).toList(),
-
+            PrioritySelector(
+              selected: priority,
               onChanged: (value) {
                 setState(() {
-                  //no need to use setState to update priority because the DropdownButtonFormField will call the onChanged callback with the new selected value, and the TaskSectionWidget will automatically rebuild and display tasks for the new selected day based on the updated state provided by the taskProvider.
                   priority = value;
                 });
               },
-
-              decoration: const InputDecoration(
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide(color: Colors.white54),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide(color: Color(0xFFFF5252)),
-                ),
-              ),
             ),
             const SizedBox(height: 20),
-            DropdownButtonFormField<String>(
-              dropdownColor: const Color(0xFFFF5252),
-              // The dropdownColor property is used to set the background color of the dropdown menu when it is opened. In this case, it is set to a shade of red (0xFFFF5252).
-              initialValue: category,
-              hint: const Text(
-                "Select priority",
-                style: TextStyle(color: Colors.white54),
-              ),
-
-              items: ["Personal", "Work", "Learning", "Sport/Activity", "Errands"].map((
-                String value,
-              ) {
-                IconData icon;
-
-                switch (value) {
-                  case "Personal":
-                    icon = Icons.person_outline;
-                    break;
-                  case "Work":
-                    icon = Icons.work_outline;
-                    break;
-                  case "Learning":
-                    icon = Icons.menu_book_outlined;
-                    break;
-                  case "Sport/Activity":
-                    icon = Icons.fitness_center_outlined;
-                    break;
-                  case "Errands":
-                    icon = Icons.shopping_cart_outlined;
-                    break;
-                  default:
-                    icon = Icons.circle_outlined;
-                }
-
-                /// Each DropdownMenuItem in the category dropdown includes an icon that visually represents the category.
-                /// The icons are determined based on the category name, providing a more intuitive
-                /// and visually appealing user interface for selecting task categories.
-
-                return DropdownMenuItem(
-                  value: value,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        value,
-                        style: const TextStyle(color: Colors.white54),
-                      ),
-                      Icon(icon, color: Colors.white54),
-                    ],
-                  ),
-                );
-              }).toList(),
-
+            CategoryDropdown(
+              selectedValue: category,
               onChanged: (value) {
                 setState(() {
-                  //no need to use setState to update category because the DropdownButtonFormField will call the onChanged callback with the new selected value, and the TaskSectionWidget will automatically rebuild and display tasks for the new selected day based on the updated state provided by the taskProvider.
                   category = value;
                 });
               },
-
-              decoration: const InputDecoration(
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide(color: Colors.white54),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide(color: Color(0xFFFF5252)),
-                ),
-              ),
             ),
           ],
         ),

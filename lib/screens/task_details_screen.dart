@@ -7,6 +7,9 @@ import '../widgets/dueDate_cal.dart';
 //import '../repositories/task_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../notifiers/task_Notifier.dart';
+import '../widgets/priority_dropdown.dart';
+import '../widgets/category_dropdown.dart';
+import '../widgets/due_date_selector.dart';
 
 class TaskDetailsScreen extends ConsumerStatefulWidget {
   final String taskId;
@@ -228,77 +231,33 @@ class _TaskDetailsScreenState extends ConsumerState<TaskDetailsScreen> {
             ),
 
             /////////////////////////////////////////////
-            ElevatedButton(
-              onPressed: isEditing ? _pickDate : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: selectedDay == null
-                    ? Colors.white54
-                    : Colors.redAccent,
-                minimumSize: const Size(double.infinity, 55),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Due: ${task.dueDate.day}/${task.dueDate.month}/${task.dueDate.year}",
-                    style: const TextStyle(color: Colors.black, fontSize: 20),
-                  ),
-                  const Icon(
-                    Icons.calendar_month,
-                    color: Colors.black,
-                    size: 30,
-                  ),
-                ],
-              ),
+            DueDateSelector(
+              selectedDay: selectedDay,
+              enabled: isEditing,
+              onPressed: _pickDate,
             ),
 
             const SizedBox(height: 20),
 
             ///////////////////////////// PRIORITY ///////////////////////////////////////////
-            DropdownButtonFormField<String>(
-              dropdownColor: const Color(0xFFFF5252),
-              initialValue: task.priority,
-              items: ["Low", "Medium", "High"]
-                  .map(
-                    (value) => DropdownMenuItem(
-                      value: value,
-                      child: Text(
-                        value,
-                        style: const TextStyle(color: Colors.white54),
-                      ),
-                    ),
-                  )
-                  .toList(),
-              onChanged: isEditing
-                  ? (value) {
-                      final updated = task;
-                      updated.priority = value!;
-                      ref.read(taskProvider.notifier).updateTask(updated);
-                    }
-                  : null,
+            PrioritySelector(
+              selected: task.priority,
+              enabled: isEditing,
+              onChanged: (value) {
+                if (isEditing) {
+                  final updated = task;
+                  updated.priority = value;
+                  ref.read(taskProvider.notifier).updateTask(updated);
+                }
+              },
             ),
 
             const SizedBox(height: 20),
 
             ///////////////////////////// CATEGORY ///////////////////////////////////////////
-            DropdownButtonFormField<String>(
-              dropdownColor: const Color(0xFFFF5252),
-              initialValue: task.category,
-              items:
-                  ["Personal", "Work", "Learning", "Sport/Activity", "Errands"]
-                      .map(
-                        (value) => DropdownMenuItem(
-                          value: value,
-                          child: Text(
-                            value,
-                            style: const TextStyle(color: Colors.white54),
-                          ),
-                        ),
-                      )
-                      .toList(),
+            CategoryDropdown(
+              selectedValue: task.category,
+              enabled: isEditing,
               onChanged: isEditing
                   ? (value) {
                       final updated = task;
