@@ -3,6 +3,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'screens/home_screen.dart';
 import 'models/task.dart'; // <-- IMPORTANT
 import 'utils/cleanUp.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() async {
 
@@ -20,8 +21,11 @@ void main() async {
   cleanupDeletedTasks(box);
 
 
-
-  runApp(const MyApp());
+runApp(
+const ProviderScope( // provides Riverpod state management to the entire app
+    child: MyApp(),
+  ),
+  );
 }
 
 class MyApp extends StatelessWidget {

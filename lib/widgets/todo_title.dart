@@ -1,31 +1,37 @@
+import 'package:app6/models/task.dart';
 import 'package:flutter/material.dart';
-import '../models/task.dart';
+//import '../models/task.dart';
 import '../utils/priority_colors.dart';
 import '../utils/category_icons.dart';
 import '../screens/task_details_screen.dart';
 import '../utils/DeleteTask.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../notifiers/task_Notifier.dart';
 
-class TaskSectionWidget extends StatefulWidget {
+
+class TaskSectionWidget extends ConsumerStatefulWidget {
   final DateTime selectedDay;
-  final List<Task> tasks;
+  final List<Task> tasks; // ✅ FIX: add field
 
   const TaskSectionWidget({
     super.key,
     required this.selectedDay,
-    required this.tasks,
-  });
+    required this.tasks, // ✅ FIX: properly assign
+  });  
 
   @override
-  State<TaskSectionWidget> createState() => _TaskSectionWidgetState();
+  ConsumerState<TaskSectionWidget> createState() => _TaskSectionWidgetState();
 }
 
-class _TaskSectionWidgetState extends State<TaskSectionWidget> {
+class _TaskSectionWidgetState extends ConsumerState<TaskSectionWidget> {
   @override
   Widget build(BuildContext context) {
 
+    final tasks = widget.tasks; // ✅ FIX: use passed tasks instead of provider
+
     /// FILTER TASKS FOR SELECTED DAY
-    final tasksForDay = widget.tasks.where((task) {
-      return !task.isDeleted &&
+    final tasksForDay = tasks.where((task) {
+        return !task.isDeleted &&
           task.dueDate.year == widget.selectedDay.year &&
           task.dueDate.month == widget.selectedDay.month &&
           task.dueDate.day == widget.selectedDay.day;
@@ -102,16 +108,20 @@ class _TaskSectionWidgetState extends State<TaskSectionWidget> {
                     if (direction == DismissDirection.startToEnd) {
                       /// SWIPE RIGHT → MARK DONE
 
-                      setState(() {
+                      /*setState(() {
                         //toggle the completion status of the task when the user swipes right. If the task is not completed, it marks it as completed; if it is already completed, it marks it as not completed. This allows users to easily update the completion status of their tasks with a simple swipe gesture.
                         if (!task.isCompleted) {
                           task.isCompleted = true;
                         } else {
                           task.isCompleted = false;
                         }
-                      });
+                      });*/
 
-                      task.save();
+                      task.isCompleted = !task.isCompleted;
+
+                      //task.save(); used to save task directly but now using provider to update task and save to hive in the repository function
+
+                      ref.read(taskProvider.notifier).updateTask(task); // update through provider
 
                       return false; // don't remove from list
                     }
@@ -121,46 +131,13 @@ class _TaskSectionWidgetState extends State<TaskSectionWidget> {
                       deleteTask(
                         context: context,
                         task: task,
-                        refreshUI: (fn) => setState(fn),
+                        ref: ref,
                       );
                     }
 
                     return null;
                   },
 
-                  /*   setState(() {
-                        task.isDeleted = true;
-                        task.deletedAt = DateTime.now();
-                      });
-
-                      task.save();
-
-                      /// SHOW SNACKBAR
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text("${task.title} deleted"),
-                          duration: const Duration(seconds: 6),
-
-                          action: SnackBarAction(
-                            label: "UNDO",
-                            onPressed: () {
-
-                              setState(() {
-                                task.isDeleted = false;
-                                task.deletedAt = null;
-                              });
-
-                              task.save();
-                            },
-                          ),
-                        ),
-                      );
-
-                      return false;
-                    }
-
-                    return false;*/
-                    
                   child: Card(
                     ///ON tap navigate to task details screen (not implemented yet)
 
@@ -207,33 +184,6 @@ class _TaskSectionWidgetState extends State<TaskSectionWidget> {
                         // If the description is null, it will display an empty string instead.
                         style: const TextStyle(color: Colors.white54),
                       ),
-
-                      /* trailing: SizedBox(
-                        width: 120,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-
-                            Checkbox(
-                              value: task.isCompleted,
-                              onChanged: (value) {
-
-                                setState(() {
-                                  task.isCompleted = value!;
-                                });
-
-                                /// SAVE CHANGE TO HIVE
-                                task.save();
-                              },
-                            ),*/
-
-////////////////////////////////New idea swipe to complete instead of checkbox
-
-                      /* Text(
-                          task.priority ?? "",
-                          style: const TextStyle(color: Colors.redAccent),
-                        ),// REMOVED AND USING COLORS INSTEAD 
-                      ],*/
                     ),
                   ),
                 );

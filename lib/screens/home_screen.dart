@@ -1,22 +1,26 @@
 import 'package:app6/screens/add_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+//import 'package:hive_flutter/hive_flutter.dart';
 import '../widgets/calTable.dart';
 import '../widgets/todo_title.dart';
-import '../models/task.dart';
-import 'package:hive/hive.dart';
+//import '../models/task.dart';
+//import 'package:hive/hive.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../notifiers/task_Notifier.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen>{
 
-  final box = Hive.box<Task>('TasksBox');// This line initializes a Hive box for storing Task objects. 
-  //The box is named 'TasksBox' and is used to read and write tasks in the Hive database.
+
+///for hive no need now while using provider, the provider will handle all interactions with hive and provide the necessary data to the UI
+            //final box = Hive.box<Task>('TasksBox');// This line initializes a Hive box for storing Task objects. 
+            //The box is named 'TasksBox' and is used to read and write tasks in the Hive database.
 
   
   DateTime selectedDay = DateTime.now(); 
@@ -28,6 +32,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+      
+      final tasks = ref.watch(taskProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
@@ -88,7 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
             CalendarWidget(
               selectedDay: selectedDay,
               onDaySelected: (day) {
-                setState(() {
+                setState(() { 
                   selectedDay = day;
                 });
               },
@@ -101,7 +107,14 @@ class _HomeScreenState extends State<HomeScreen> {
             Expanded( //USE EXPANDED TO TAKE UP REMAINING SPACE IN THE COLUMN 
                      // AND ALLOW THE TASK LIST TO SCROLL IF IT EXCEEDS THE AVAILABLE SPACE
               
-              child: ValueListenableBuilder(
+              child: TaskSectionWidget(
+                selectedDay: selectedDay,
+                tasks: tasks, // Pass the list of tasks from the provider to the TaskSectionWidget
+                ),
+              
+              
+              
+              /*ValueListenableBuilder(
                 // The ValueListenableBuilder listens to changes in the Hive box and rebuilds the TaskSectionWidget whenever there is a change in the tasks stored in the box.
                 valueListenable: box.listenable(), //listenable to changes in the box 
                 
@@ -118,7 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                   //End of Task widget
                 },
-              ),
+              ),*/
             ),
           ],
         ),

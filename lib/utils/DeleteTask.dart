@@ -1,34 +1,33 @@
 import 'package:flutter/material.dart';
 import '../models/task.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../notifiers/task_Notifier.dart';
+
 
 Future<bool> deleteTask({
   required BuildContext context,
   required Task task,
-  required Function(VoidCallback) refreshUI,
+  required WidgetRef ref,
 }) async {
+  final notifier = ref.read(taskProvider.notifier);
 
-  final messenger = ScaffoldMessenger.of(context); // capture early
+  final messenger = ScaffoldMessenger.of(
+    Navigator.of(context, rootNavigator: true).context,
+  );
 
-  refreshUI(() {
-    task.isDeleted = true;
-    task.deletedAt = DateTime.now();
-  });
-
-  await task.save();
+  // ✅ delete via notifier ONLY
+  notifier.deleteTask(task);
 
   messenger.showSnackBar(
     SnackBar(
       content: Text("${task.title} deleted"),
       duration: const Duration(seconds: 6),
+
       action: SnackBarAction(
         label: "UNDO",
         onPressed: () {
-          refreshUI(() {
-            task.isDeleted = false;
-            task.deletedAt = null;
-          });
-
-          task.save();
+          // Use captured notifier so undo still works after source widget is disposed.
+          notifier.restoreTask(task);
         },
       ),
     ),
