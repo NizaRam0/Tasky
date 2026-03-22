@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 //import 'package:hive_flutter/hive_flutter.dart';
 import '../widgets/cal_table.dart';
 import '../widgets/todo_title.dart';
+import 'ai_planner_screen.dart';
 import 'task_hub_screen.dart';
 //import '../models/task.dart';
 //import 'package:hive/hive.dart';
@@ -26,6 +27,66 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   // It is initialized to the current date using DateTime.now().
   // used in the CalendarWidget to highlight the selected date and to filter tasks based on their due dates.
 
+  Future<void> _showCreateOptions() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: const Color(0xFF1E1E1E),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.add_task, color: Colors.redAccent),
+                  title: const Text(
+                    'Add Task',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  subtitle: const Text(
+                    'Create a task manually',
+                    style: TextStyle(color: Colors.white54),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      this.context,
+                      MaterialPageRoute(builder: (context) => const addTask()),
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.auto_awesome, color: Colors.amber),
+                  title: const Text(
+                    'AI Planner',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  subtitle: const Text(
+                    'Generate subtasks from a project or day goal',
+                    style: TextStyle(color: Colors.white54),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      this.context,
+                      MaterialPageRoute(
+                        builder: (context) => const AiPlannerScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final tasks = ref.watch(taskProvider);
@@ -45,12 +106,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           children: [
             //ADD TASK BUTTON ICON NAVIGATES TO ADD TASK SCREEN
             IconButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const addTask()),
-                );
-              },
+              onPressed: _showCreateOptions,
               icon: const Icon(Icons.add, size: 40),
               color: Colors.redAccent,
             ),

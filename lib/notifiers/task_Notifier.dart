@@ -144,3 +144,8 @@ class TaskNotifier extends StateNotifier<List<Task>> {
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 }
+//////////////
+//////// This file defines the TaskNotifier class, which extends StateNotifier from the Riverpod package. It manages the state of a list of Task objects and interacts with the TaskRepository to perform CRUD operations. The notifier provides methods to load tasks, add, update, delete, restore, and filter tasks based on various criteria such as priority, category, and due date. 
+///The state is updated whenever changes are made to ensure that the UI reflects the current state of tasks.
+///The TaskNotifier is provided to the app using a StateNotifierProvider, allowing widgets to listen for changes and rebuild accordingly when the task list is updated.
+///This separation of concerns allows for a clean architecture where the UI can focus on presentation while the notifier handles business logic and state management.
