@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/task.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../notifiers/task_Notifier.dart';
+import '../notifiers/task_notifier.dart';
 
 
 Future<bool> deleteTask({

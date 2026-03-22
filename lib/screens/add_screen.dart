@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
-import '../widgets/dueDate_cal.dart';
+import '../widgets/due_date_cal.dart';
 import '../models/task.dart';
 //import 'package:hive/hive.dart';
-import '../utils/TidGen.dart';
+import '../utils/tid_gen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../notifiers/task_Notifier.dart';
-import '../widgets/priority_dropdown.dart';
-import '../widgets/category_dropdown.dart';
+import '../notifiers/task_notifier.dart';
+import '../widgets/priority_widget.dart';
+import '../widgets/category_widget.dart';
 import '../widgets/due_date_selector.dart';
 
+// ignore: camel_case_types
 class addTask extends ConsumerStatefulWidget {
   const addTask({super.key});
 
@@ -16,6 +17,7 @@ class addTask extends ConsumerStatefulWidget {
   ConsumerState<addTask> createState() => _addTaskState();
 }
 
+// ignore: camel_case_types
 class _addTaskState extends ConsumerState<addTask> {
   //final taskDB = Hive.box<Task>('TasksBox');
 
@@ -85,8 +87,11 @@ class _addTaskState extends ConsumerState<addTask> {
   /////////////////////////////////////////////////////////////Eend functions///////////////////////////////////////////
   @override
   Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
     return Scaffold(
       backgroundColor: const Color(0xFF121212), // dark background
+      resizeToAvoidBottomInset: true,
 
       appBar: AppBar(
         leading: const BackButton(color: Colors.redAccent),
@@ -111,97 +116,112 @@ class _addTaskState extends ConsumerState<addTask> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ///////////////////////////// TASK TITLE /////////////////////////////////////////////
-            const Text(
-              "Task title:",
-              style: TextStyle(fontSize: 21, color: Colors.white54),
-            ),
-
-            const SizedBox(height: 10),
-
-            TextField(
-              controller: titleController,
-              style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(
-                hintText: 'Enter a title for your task ',
-                hintStyle: TextStyle(color: Colors.white54),
-
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide(color: Colors.white54, width: 2),
+      body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + bottomInset),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ///////////////////////////// TASK TITLE /////////////////////////////////////////////
+                const Text(
+                  "Task title:",
+                  style: TextStyle(fontSize: 21, color: Colors.white54),
                 ),
 
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide(color: Colors.redAccent, width: 2),
-                ),
-              ),
-            ),
-            ///////////////////////////// TASK DESC /////////////////////////////////////////////
-            const SizedBox(height: 20),
+                const SizedBox(height: 10),
 
-            const Text(
-              "Task descreption:",
-              style: TextStyle(fontSize: 21, color: Colors.white54),
-            ),
+                TextField(
+                  controller: titleController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    hintText: 'Enter a title for your task ',
+                    hintStyle: TextStyle(color: Colors.white54),
 
-            const SizedBox(height: 10),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                      borderSide: BorderSide(color: Colors.white54, width: 2),
+                    ),
 
-            TextField(
-              controller: descController,
-              maxLines: 4,
-
-              style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(
-                hintText: 'Enter a descreption for your task',
-                hintStyle: TextStyle(color: Colors.white54),
-
-                ///enabledBorder and focusedBorder are properties of the InputDecoration class in Flutter that define the appearance of the border around a TextField when it is enabled and focused, respectively.
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide(
-                    color: Color.from(alpha: 0.541, red: 1, green: 1, blue: 1),
-                    width: 2,
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                      borderSide: BorderSide(color: Colors.redAccent, width: 2),
+                    ),
                   ),
                 ),
+                ///////////////////////////// TASK DESC /////////////////////////////////////////////
+                const SizedBox(height: 20),
 
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide(color: Color(0xFFFF5252), width: 2),
+                const Text(
+                  "Task descreption:",
+                  style: TextStyle(fontSize: 21, color: Colors.white54),
                 ),
-              ),
-            ),
-            ///////////////////////////// TASK DESC /////////////////////////////////////////////
-            const SizedBox(height: 20),
 
-            /// DATE PICKER BUTTON
-            DueDateSelector(selectedDay: selectedDay, onPressed: _pickDate),
+                const SizedBox(height: 10),
 
-            /////////////////////////////Priority///////////////////////////////////////////
-            const SizedBox(height: 20),
-            PrioritySelector(
-              selected: priority,
-              onChanged: (value) {
-                setState(() {
-                  priority = value;
-                });
-              },
+                TextField(
+                  controller: descController,
+                  maxLines: 4,
+
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    hintText: 'Enter a descreption for your task',
+                    hintStyle: TextStyle(color: Colors.white54),
+
+                    ///enabledBorder and focusedBorder are properties of the InputDecoration class in Flutter that define the appearance of the border around a TextField when it is enabled and focused, respectively.
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                      borderSide: BorderSide(
+                        color: Color.from(
+                          alpha: 0.541,
+                          red: 1,
+                          green: 1,
+                          blue: 1,
+                        ),
+                        width: 2,
+                      ),
+                    ),
+
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                      borderSide: BorderSide(
+                        color: Color(0xFFFF5252),
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                ),
+                ///////////////////////////// TASK DESC /////////////////////////////////////////////
+                const SizedBox(height: 20),
+
+                /// DATE PICKER BUTTON
+                DueDateSelector(selectedDay: selectedDay, onPressed: _pickDate),
+
+                /////////////////////////////Priority///////////////////////////////////////////
+                const SizedBox(height: 20),
+                PrioritySelector(
+                  selected: priority,
+                  onChanged: (value) {
+                    setState(() {
+                      priority = value;
+                    });
+                  },
+                ),
+                const SizedBox(height: 20),
+                CategoryDropdown(
+                  selectedValue: category,
+                  onChanged: (value) {
+                    setState(() {
+                      category = value;
+                    });
+                  },
+                ),
+              ],
             ),
-            const SizedBox(height: 20),
-            CategoryDropdown(
-              selectedValue: category,
-              onChanged: (value) {
-                setState(() {
-                  category = value;
-                });
-              },
-            ),
-          ],
+          ),
         ),
       ),
     );

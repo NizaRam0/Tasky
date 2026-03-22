@@ -61,7 +61,12 @@ class CategoryDropdown extends StatelessWidget {
               children: [
                 if (showIcons) ...[
                   Container(
-                    padding: const EdgeInsets.only(top:2, bottom: 8, left: 8, right: 8),
+                    padding: const EdgeInsets.only(
+                      top: 2,
+                      bottom: 8,
+                      left: 8,
+                      right: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white10,
                       borderRadius: BorderRadius.circular(10),
@@ -83,8 +88,10 @@ class CategoryDropdown extends StatelessWidget {
         onChanged: enabled ? onChanged : null,
 
         decoration: InputDecoration(
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 14,
+          ),
 
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
@@ -98,10 +105,7 @@ class CategoryDropdown extends StatelessWidget {
 
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(
-              color: Color(0xFFFF5252),
-              width: 1.5,
-            ),
+            borderSide: const BorderSide(color: Color(0xFFFF5252), width: 1.5),
           ),
         ),
       ),

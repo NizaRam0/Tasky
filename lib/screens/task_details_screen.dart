@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 //import 'package:hive/hive.dart';
 import 'add_screen.dart';
-import '../utils/DeleteTask.dart';
+import '../utils/delete_task.dart';
 import '../models/task.dart';
-import '../widgets/dueDate_cal.dart';
+import '../widgets/due_date_cal.dart';
 //import '../repositories/task_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../notifiers/task_Notifier.dart';
-import '../widgets/priority_dropdown.dart';
-import '../widgets/category_dropdown.dart';
+import '../notifiers/task_notifier.dart';
+import '../widgets/priority_widget.dart';
+import '../widgets/category_widget.dart';
 import '../widgets/due_date_selector.dart';
 
 class TaskDetailsScreen extends ConsumerStatefulWidget {
