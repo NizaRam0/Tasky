@@ -76,7 +76,7 @@ class AiPlannerService {
   AiPlannerService({
     this.baseUrl = const String.fromEnvironment(
       'AI_BACKEND_URL',
-      defaultValue: 'http://192.168.100.196:8787',
+      defaultValue: 'https://taskyai-backend.onrender.com',
     ),
     http.Client? client,
   }) : _client = client ?? http.Client();
@@ -86,6 +86,9 @@ class AiPlannerService {
     required DateTime startDate,
     required DateTime endDate,
   }) async {
+    final normalizedBaseUrl = baseUrl.endsWith('/')
+      ? baseUrl.substring(0, baseUrl.length - 1)
+        : baseUrl;
     final cleaned = prompt.trim();
     if (cleaned.isEmpty) {
       return const AiPlanResponse(planTitle: 'Generated Plan', subtasks: []);
@@ -94,7 +97,7 @@ class AiPlannerService {
     try {
       final response = await _client
           .post(
-            Uri.parse('$baseUrl/ai/planner'),
+            Uri.parse('$normalizedBaseUrl/ai/planner'),
             headers: {'Content-Type': 'application/json'},
             body: jsonEncode({
               'prompt': cleaned,
