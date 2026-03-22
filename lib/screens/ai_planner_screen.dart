@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../models/task.dart';
 import '../notifiers/task_notifier.dart';
 import '../services/ai_planner_service.dart';
-import '../utils/ai_functions.dart';
+import '../utils/tid_gen.dart';
 import '../widgets/due_date_cal.dart';
 import '../widgets/due_date_selector.dart';
 
@@ -16,6 +17,7 @@ class AiPlannerScreen extends ConsumerStatefulWidget {
 
 class _AiPlannerScreenState extends ConsumerState<AiPlannerScreen> {
   final TextEditingController _promptController = TextEditingController();
+  final AiPlannerService _service = AiPlannerService();
 
   DateTime _startDate = DateTime.now();
   DateTime _endDate = DateTime.now().add(const Duration(days: 4));
@@ -51,7 +53,7 @@ class _AiPlannerScreenState extends ConsumerState<AiPlannerScreen> {
 
   Future<void> _generatePlan() async {
     final prompt = _promptController.text.trim();
-    if (!hasValidAiPrompt(prompt)) {
+    if (prompt.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Describe your day or project first.')),
       );
@@ -60,7 +62,7 @@ class _AiPlannerScreenState extends ConsumerState<AiPlannerScreen> {
 
     setState(() => _isGenerating = true);
     try {
-      final response = await generateAiPlan(
+      final response = await _service.generatePlan(
         prompt: prompt,
         startDate: _startDate,
         endDate: _endDate,
@@ -82,7 +84,20 @@ class _AiPlannerScreenState extends ConsumerState<AiPlannerScreen> {
     }
 
     final notifier = ref.read(taskProvider.notifier);
-    createTasksFromAiSubtasks(subtasks: _generated, notifier: notifier);
+
+    for (final subtask in _generated) {
+      notifier.addTask(
+        Task(
+          title: subtask.title,
+          description: subtask.description,
+          dueDate: subtask.dueDate,
+          priority: subtask.priority,
+          category: subtask.category,
+          tid: TidGen.generateTid(),
+          createdAt: DateTime.now(),
+        ),
+      );
+    }
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -180,10 +195,7 @@ class _AiPlannerScreenState extends ConsumerState<AiPlannerScreen> {
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            buildAiPlanWindowLabel(
-                              startDate: _startDate,
-                              endDate: _endDate,
-                            ),
+                            'From ${_startDate.day}/${_startDate.month}/${_startDate.year} to ${_endDate.day}/${_endDate.month}/${_endDate.year}',
                             style: const TextStyle(color: Colors.white70),
                           ),
                         ),
