@@ -80,6 +80,8 @@ class _TaskDetailsScreenState extends ConsumerState<TaskDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
     final task = _getTask();
     if (task == null) {
       return const Scaffold(
@@ -107,6 +109,7 @@ class _TaskDetailsScreenState extends ConsumerState<TaskDetailsScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
+      resizeToAvoidBottomInset: true,
 
       ////////////////////////////////////////NAVBAR///////////////////////////////////////////////////////////////
       appBar: AppBar(
@@ -138,190 +141,232 @@ class _TaskDetailsScreenState extends ConsumerState<TaskDetailsScreen> {
       ),
 
       //////////////////////////////////////////////BODY///////////////////////////////////////////////////////////////
-      body: Padding(
-        padding: const EdgeInsets.only(
-          bottom: 16,
-          left: 16,
-          right: 16,
-          top: 60,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            /////////////////////////////////////////////////// TITLE FIELD////////////////////////
-            TextField(
-              controller: titleController,
-              readOnly: !isEditing,
-              style: const TextStyle(color: Colors.white54, fontSize: 20),
-              decoration: const InputDecoration(
-                hintText: 'Enter a title for your task ',
-                hintStyle: TextStyle(color: Colors.white54),
-                labelText: "Title",
-                labelStyle: TextStyle(
-                  color: Colors.white54,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide(color: Colors.white54, width: 2),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide(color: Colors.redAccent, width: 2),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 25),
-
-            ///////////////////////////// DESCRIPTION FIELD/////////////////////////////////////////
-            TextField(
-              controller: descriptionController,
-              readOnly: !isEditing,
-              maxLines: 4,
-              style: const TextStyle(color: Colors.white54, fontSize: 20),
-              decoration: const InputDecoration(
-                hintText: 'Enter a description for your task ',
-                hintStyle: TextStyle(color: Colors.white54),
-                labelText: "Description",
-                labelStyle: TextStyle(
-                  color: Colors.white54,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide(color: Colors.white54, width: 2),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide(color: Colors.redAccent, width: 2),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 25),
-
-            // =========================
-            // COMPLETED CHECKBOX
-            // =========================
-            Row(
+      body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            padding: EdgeInsets.fromLTRB(16, 60, 16, 16 + bottomInset),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Checkbox(
-                  value: isCompleted,
+                /////////////////////////////////////////////////// TITLE FIELD////////////////////////
+                TextField(
+                  controller: titleController,
+                  readOnly: !isEditing,
+                  style: const TextStyle(color: Colors.white54, fontSize: 20),
+                  decoration: const InputDecoration(
+                    hintText: 'Enter a title for your task ',
+                    hintStyle: TextStyle(color: Colors.white54),
+                    labelText: "Title",
+                    labelStyle: TextStyle(
+                      color: Colors.white54,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                      borderSide: BorderSide(color: Colors.white54, width: 2),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                      borderSide: BorderSide(color: Colors.redAccent, width: 2),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 25),
+
+                ///////////////////////////// DESCRIPTION FIELD/////////////////////////////////////////
+                TextField(
+                  controller: descriptionController,
+                  readOnly: !isEditing,
+                  maxLines: 4,
+                  style: const TextStyle(color: Colors.white54, fontSize: 20),
+                  decoration: const InputDecoration(
+                    hintText: 'Enter a description for your task ',
+                    hintStyle: TextStyle(color: Colors.white54),
+                    labelText: "Description",
+                    labelStyle: TextStyle(
+                      color: Colors.white54,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                      borderSide: BorderSide(color: Colors.white54, width: 2),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                      borderSide: BorderSide(color: Colors.redAccent, width: 2),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 25),
+
+                // =========================
+                // COMPLETED CHECKBOX
+                // =========================
+                Row(
+                  children: [
+                    Checkbox(
+                      value: isCompleted,
+                      onChanged: isEditing
+                          ? (value) {
+                              setState(() {
+                                isCompleted = value!;
+                              });
+
+                              final updated = task;
+                              updated.isCompleted = value!;
+
+                              ref
+                                  .read(taskProvider.notifier)
+                                  .updateTask(updated);
+                            }
+                          : null,
+                    ),
+                    const Text(
+                      "Completed",
+                      style: TextStyle(color: Colors.white54, fontSize: 20),
+                    ),
+                  ],
+                ),
+
+                /////////////////////////////////////////////
+                DueDateSelector(
+                  selectedDay: selectedDay,
+                  enabled: isEditing,
+                  onPressed: _pickDate,
+                ),
+
+                const SizedBox(height: 20),
+
+                ///////////////////////////// PRIORITY ///////////////////////////////////////////
+                PrioritySelector(
+                  selected: task.priority,
+                  enabled: isEditing,
+                  onChanged: (value) {
+                    if (isEditing) {
+                      final updated = task;
+                      updated.priority = value;
+                      ref.read(taskProvider.notifier).updateTask(updated);
+                    }
+                  },
+                ),
+
+                const SizedBox(height: 20),
+
+                ///////////////////////////// CATEGORY ///////////////////////////////////////////
+                CategoryDropdown(
+                  selectedValue: task.category,
+                  enabled: isEditing,
                   onChanged: isEditing
                       ? (value) {
-                          setState(() {
-                            isCompleted = value!;
-                          });
-
                           final updated = task;
-                          updated.isCompleted = value!;
-
+                          updated.category = value!;
                           ref.read(taskProvider.notifier).updateTask(updated);
                         }
                       : null,
                 ),
-                const Text(
-                  "Completed",
-                  style: TextStyle(color: Colors.white54, fontSize: 20),
-                ),
-              ],
-            ),
 
-            /////////////////////////////////////////////
-            DueDateSelector(
-              selectedDay: selectedDay,
-              enabled: isEditing,
-              onPressed: _pickDate,
-            ),
+                const SizedBox(height: 25),
 
-            const SizedBox(height: 20),
-
-            ///////////////////////////// PRIORITY ///////////////////////////////////////////
-            PrioritySelector(
-              selected: task.priority,
-              enabled: isEditing,
-              onChanged: (value) {
-                if (isEditing) {
-                  final updated = task;
-                  updated.priority = value;
-                  ref.read(taskProvider.notifier).updateTask(updated);
-                }
-              },
-            ),
-
-            const SizedBox(height: 20),
-
-            ///////////////////////////// CATEGORY ///////////////////////////////////////////
-            CategoryDropdown(
-              selectedValue: task.category,
-              enabled: isEditing,
-              onChanged: isEditing
-                  ? (value) {
-                      final updated = task;
-                      updated.category = value!;
-                      ref.read(taskProvider.notifier).updateTask(updated);
-                    }
-                  : null,
-            ),
-
-            const SizedBox(height: 25),
-
-            ///////////////////////////// ACTION BUTTONS ///////////////////////////////////////////
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                /// DELETE
-                IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red, size: 30),
-                  onPressed: () {
-                    deleteTask(context: context, task: task, ref: ref);
-                    Navigator.pop(context);
-                  },
-                ),
-
+                ///////////////////////////// ACTION BUTTONS ///////////////////////////////////////////
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    /// EDIT
-                    ElevatedButton(
-                      onPressed: isEditing
-                          ? null
-                          : () {
-                              setState(() => isEditing = true);
-                            },
-                      child: Text("Edit"),
+                    /// DELETE
+                    IconButton(
+                      icon: const Icon(
+                        Icons.delete,
+                        color: Colors.red,
+                        size: 30,
+                      ),
+                      onPressed: () {
+                        deleteTask(context: context, task: task, ref: ref);
+                        Navigator.pop(context);
+                      },
                     ),
 
-                    const SizedBox(width: 16),
+                    Row(
+                      children: [
+                        /// EDIT
+                        OutlinedButton.icon(
+                          onPressed: isEditing
+                              ? null
+                              : () {
+                                  setState(() => isEditing = true);
+                                },
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            side: const BorderSide(color: Colors.redAccent),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          icon: const Icon(Icons.edit_outlined, size: 18),
+                          label: const Text(
+                            "Edit",
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                        ),
 
-                    /// SAVE
-                    ElevatedButton(
-                      onPressed: !isEditing
-                          ? null
-                          : () {
-                              task.title = titleController.text;
-                              task.description = descriptionController.text;
+                        const SizedBox(width: 16),
 
-                              ref.read(taskProvider.notifier).updateTask(task);
+                        /// SAVE
+                        ElevatedButton.icon(
+                          onPressed: !isEditing
+                              ? null
+                              : () {
+                                  task.title = titleController.text;
+                                  task.description = descriptionController.text;
 
-                              setState(() => isEditing = false);
-                            },
-                      child: Text("Save"),
+                                  ref
+                                      .read(taskProvider.notifier)
+                                      .updateTask(task);
+
+                                  setState(() => isEditing = false);
+                                },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.redAccent,
+                            foregroundColor: Colors.white,
+                            disabledBackgroundColor: Colors.white24,
+                            disabledForegroundColor: Colors.white54,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          icon: const Icon(Icons.save_outlined, size: 18),
+                          label: const Text(
+                            "Save",
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
+
+                const SizedBox(height: 20),
+
+                Text(
+                  "Created: ${task.createdAt?.day}/${task.createdAt?.month}/${task.createdAt?.year}",
+                  style: const TextStyle(color: Colors.white54, fontSize: 26),
+                ),
               ],
             ),
-
-            const SizedBox(height: 20),
-
-            Text(
-              "Created: ${task.createdAt?.day}/${task.createdAt?.month}/${task.createdAt?.year}",
-              style: const TextStyle(color: Colors.white54, fontSize: 26),
-            ),
-          ],
+          ),
         ),
       ),
     );

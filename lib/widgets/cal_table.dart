@@ -12,12 +12,12 @@ import 'package:table_calendar/table_calendar.dart';
 class CalendarWidget extends StatelessWidget {
   final DateTime selectedDay;
   // takes the currently selected day as a parameter and highlights it on the calendar. It is of type DateTime and is required to be passed when creating an instance of the CalendarWidget.
-  final Function(DateTime) onDaySelected; 
-  // takes a callback function that is called when a day is selected on the calendar. The function takes a DateTime parameter, which represents the selected day. 
+  final Function(DateTime) onDaySelected;
+  // takes a callback function that is called when a day is selected on the calendar. The function takes a DateTime parameter, which represents the selected day.
   //This allows the parent widget (in this case, the home screen) to update its state and filter tasks based on the selected date.
 
   const CalendarWidget({
-    super.key, 
+    super.key,
     // The super.key is used to pass the key parameter to the parent class (StatelessWidget) constructor. This allows the widget to be properly identified and managed in the widget tree, especially when it comes to rebuilding and optimizing performance.
     required this.selectedDay,
     required this.onDaySelected,
@@ -30,38 +30,47 @@ class CalendarWidget extends StatelessWidget {
     return Card(
       color: const Color(0xFF1E1E1E),
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: TableCalendar( //the imported calendar widget from the table_calendar package that provides a customizable calendar interface.
+        padding: const EdgeInsets.all(10),
+        child: TableCalendar(
+          //the imported calendar widget from the table_calendar package that provides a customizable calendar interface.
           focusedDay: selectedDay,
-          firstDay: DateTime(2020), 
+          firstDay: DateTime(2020),
           lastDay: DateTime(2030),
+          rowHeight: 44,
+          daysOfWeekHeight: 24,
+
           // the firstDay shown and lastDay shown parameters define the range of the calendar,
-          // allowing users to navigate between years and months within that range. 
+          // allowing users to navigate between years and months within that range.
           //In this case, the calendar will display dates from January 1, 2020, to December 31, 2030.
+          selectedDayPredicate: (day) => isSameDay(day, selectedDay),
 
-          selectedDayPredicate: (day) => isSameDay(day, selectedDay), 
-          // the day selected predicate is a function that checks if a given day is the same as the currently selected day. 
+          // the day selected predicate is a function that checks if a given day is the same as the currently selected day.
           //This is used to highlight the selected day on the calendar.
-
           onDaySelected: (selectedDay, focusedDay) {
             // the onDaySelected callback is triggered when a user selects a day on the calendar. It takes the selected day and the focused day as parameters.
             onDaySelected(selectedDay);
           },
-/////////////////////////////////////////////STYLES////////////////////////////////////////////////////////////////////////////////////
+          /////////////////////////////////////////////STYLES////////////////////////////////////////////////////////////////////////////////////
           headerStyle: const HeaderStyle(
             titleCentered: true,
             formatButtonVisible: false,
             titleTextStyle: TextStyle(
               color: Colors.white,
-              fontSize: 18,
+              fontSize: 17,
               fontWeight: FontWeight.bold,
             ),
-            leftChevronIcon: Icon(Icons.chevron_left, color: Colors.white),
-            rightChevronIcon: Icon(Icons.chevron_right, color: Colors.white),
+            leftChevronIcon: Icon(
+              Icons.chevron_left,
+              size: 22,
+              color: Colors.white,
+            ),
+            rightChevronIcon: Icon(
+              Icons.chevron_right,
+              size: 22,
+              color: Colors.white,
+            ),
           ),
 
           daysOfWeekStyle: const DaysOfWeekStyle(
@@ -76,14 +85,9 @@ class CalendarWidget extends StatelessWidget {
           ),
 
           calendarStyle: const CalendarStyle(
-            defaultTextStyle: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-            ),
-            weekendTextStyle: TextStyle(
-              color: Colors.redAccent,
-              fontSize: 16,
-            ),
+            defaultTextStyle: TextStyle(color: Colors.white, fontSize: 15),
+            weekendTextStyle: TextStyle(color: Colors.redAccent, fontSize: 15),
+            cellMargin: EdgeInsets.all(4),
             todayDecoration: BoxDecoration(
               color: Colors.orange,
               shape: BoxShape.circle,
@@ -104,3 +108,13 @@ class CalendarWidget extends StatelessWidget {
     );
   }
 }
+
+// Original calendar sizing reference (before compact/medium tuning):
+// - Padding: EdgeInsets.all(12)
+// - rowHeight: not set (TableCalendar default)
+// - daysOfWeekHeight: not set (TableCalendar default)
+// - Header title fontSize: 18
+// - Header chevron size: not set (Icon default)
+// - defaultTextStyle fontSize: 16
+// - weekendTextStyle fontSize: 16
+// - cellMargin: not set (TableCalendar default)

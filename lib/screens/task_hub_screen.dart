@@ -13,6 +13,14 @@ class TaskHubScreen extends ConsumerStatefulWidget {
 
 class _TaskHubScreenState extends ConsumerState<TaskHubScreen> {
   final TextEditingController _searchController = TextEditingController();
+  static const List<String> _baseCategories = [
+    'Personal',
+    'Work',
+    'Learning',
+    'Sport/Activity',
+    'Errands',
+  ];
+
   String _query = '';
   String _priorityFilter = 'All';
   String _categoryFilter = 'All';
@@ -26,13 +34,16 @@ class _TaskHubScreenState extends ConsumerState<TaskHubScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
     final allTasks = ref.watch(taskProvider);
     final notifier = ref.read(taskProvider.notifier);
 
-    final allCategories = <String>{
+    final allCategories = <String>[
       'All',
+      ..._baseCategories,
       ...allTasks.map((task) => task.category),
-    }.toList();
+    ].toSet().toList();
 
     final todayTasks = notifier.filterTasks(
       tasks: notifier.getTodayTasks(),
@@ -68,105 +79,128 @@ class _TaskHubScreenState extends ConsumerState<TaskHubScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        title: const Text('Task Hub'),
-        centerTitle: true,
+                leading: const BackButton(color: Colors.redAccent),
         elevation: 0,
+        centerTitle: true,
+
+        title: Text(
+          "Tasks Hub",
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF121212),
+          ),
+        ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              controller: _searchController,
-              style: const TextStyle(color: Colors.white),
-              onChanged: (value) {
-                setState(() {
-                  _query = value;
-                });
-              },
-              decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.search, color: Colors.white54),
-                hintText: 'Search by task title',
-                hintStyle: const TextStyle(color: Colors.white54),
-                filled: true,
-                fillColor: const Color(0xFF1E1E1E),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: Colors.white54, width: 1),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: Colors.white54, width: 1),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(
-                    color: Colors.redAccent,
-                    width: 2,
+      body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextField(
+                  controller: _searchController,
+                  style: const TextStyle(color: Colors.white),
+                  onChanged: (value) {
+                    setState(() {
+                      _query = value;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.search, color: Colors.white54),
+                    hintText: 'Search by task title',
+                    hintStyle: const TextStyle(color: Colors.white54),
+                    filled: true,
+                    fillColor: const Color(0xFF1E1E1E),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                        color: Colors.white54,
+                        width: 1,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                        color: Colors.white54,
+                        width: 1,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                        color: Colors.redAccent,
+                        width: 2,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: [
-                _buildDropdown(
-                  label: 'Priority',
-                  value: _priorityFilter,
-                  items: const ['All', 'Low', 'Medium', 'High'],
-                  onChanged: (value) {
-                    setState(() {
-                      _priorityFilter = value;
-                    });
-                  },
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: [
+                    _buildDropdown(
+                      label: 'Priority',
+                      value: _priorityFilter,
+                      items: const ['All', 'Low', 'Medium', 'High'],
+                      onChanged: (value) {
+                        setState(() {
+                          _priorityFilter = value;
+                        });
+                      },
+                    ),
+                    _buildDropdown(
+                      label: 'Category',
+                      value: _categoryFilter,
+                      items: allCategories,
+                      onChanged: (value) {
+                        setState(() {
+                          _categoryFilter = value;
+                        });
+                      },
+                    ),
+                    _buildDropdown(
+                      label: 'Date',
+                      value: _dateFilter,
+                      items: const ['All', 'Today', 'Overdue', 'Upcoming'],
+                      onChanged: (value) {
+                        setState(() {
+                          _dateFilter = value;
+                        });
+                      },
+                    ),
+                  ],
                 ),
-                _buildDropdown(
-                  label: 'Category',
-                  value: _categoryFilter,
-                  items: allCategories,
-                  onChanged: (value) {
-                    setState(() {
-                      _categoryFilter = value;
-                    });
-                  },
+                const SizedBox(height: 20),
+                _buildSection(
+                  icon: Icons.push_pin,
+                  title: 'Today',
+                  tasks: todayTasks,
+                  emptyText: 'No tasks due today',
                 ),
-                _buildDropdown(
-                  label: 'Date',
-                  value: _dateFilter,
-                  items: const ['All', 'Today', 'Overdue', 'Upcoming'],
-                  onChanged: (value) {
-                    setState(() {
-                      _dateFilter = value;
-                    });
-                  },
+                _buildSection(
+                  icon: Icons.warning_amber,
+                  title: 'Overdue',
+                  tasks: overdueTasks,
+                  emptyText: 'No overdue tasks',
                 ),
+                _buildSection(
+                  icon: Icons.upcoming,
+                  title: 'Upcoming',
+                  tasks: upcomingTasks,
+                  emptyText: 'No upcoming tasks',
+                ),
+                _buildDeletedSection(deletedTasks),
               ],
             ),
-            const SizedBox(height: 20),
-            _buildSection(
-              icon: Icons.push_pin,
-              title: 'Today',
-              tasks: todayTasks,
-              emptyText: 'No tasks due today',
-            ),
-            _buildSection(
-              icon: Icons.warning_amber,
-              title: 'Overdue',
-              tasks: overdueTasks,
-              emptyText: 'No overdue tasks',
-            ),
-            _buildSection(
-              icon: Icons.upcoming,
-              title: 'Upcoming',
-              tasks: upcomingTasks,
-              emptyText: 'No upcoming tasks',
-            ),
-            _buildDeletedSection(deletedTasks),
-          ],
+          ),
         ),
       ),
     );
@@ -178,46 +212,69 @@ class _TaskHubScreenState extends ConsumerState<TaskHubScreen> {
     required List<String> items,
     required ValueChanged<String> onChanged,
   }) {
+    final selectedValue = items.contains(value) ? value : items.first;
+
     return SizedBox(
-      width: 160,
-      child: DropdownButtonFormField<String>(
-        initialValue: value,
-        dropdownColor: const Color(0xFF2A2A2A),
-        style: const TextStyle(color: Colors.white),
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(color: Colors.white54),
-          filled: true,
-          fillColor: const Color(0xFF1E1E1E),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Colors.white54, width: 1),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Colors.white54, width: 1),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Colors.redAccent, width: 2),
-          ),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 12,
-            vertical: 8,
-          ),
+      width: 170,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          color: const Color(0xFF1E1E1E),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.25),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
-        items: items
-            .map(
-              (item) =>
-                  DropdownMenuItem<String>(value: item, child: Text(item)),
-            )
-            .toList(),
-        onChanged: (selected) {
-          if (selected == null) {
-            return;
-          }
-          onChanged(selected);
-        },
+        child: DropdownButtonFormField<String>(
+          initialValue: selectedValue,
+          isExpanded: true,
+          dropdownColor: const Color(0xFF2A2A2A),
+          borderRadius: BorderRadius.circular(16),
+          icon: const Icon(Icons.expand_more, color: Colors.white),
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
+          ),
+          decoration: InputDecoration(
+            labelText: label,
+            labelStyle: const TextStyle(color: Colors.white54),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide.none,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(
+                color: Color(0xFFFF5252),
+                width: 1.5,
+              ),
+            ),
+          ),
+          items: items
+              .map(
+                (item) =>
+                    DropdownMenuItem<String>(value: item, child: Text(item)),
+              )
+              .toList(),
+          onChanged: (selected) {
+            if (selected == null) {
+              return;
+            }
+            onChanged(selected);
+          },
+        ),
       ),
     );
   }

@@ -45,12 +45,14 @@ class _TaskSectionWidgetState extends ConsumerState<TaskSectionWidget> {
         const SizedBox(height: 30),
 
         /// HEADER
-        Text(
-          "Tasks for ${widget.selectedDay.year}-${widget.selectedDay.month}-${widget.selectedDay.day}",
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+        Center(
+          child: Text(
+            "Tasks for ${widget.selectedDay.year}-${widget.selectedDay.month}-${widget.selectedDay.day}",
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
         ),
 
